@@ -1,29 +1,30 @@
 var gui;
+var mMinSlider, mMaxSlider;
 
 var paramLimits = {
     a: {
-        min: .01,
+        min: 1,
         max: 8.0
     },
     b: {
-        min: .01,
+        min: 1,
         max: 8.0
     },
     m: {
-        min: .01,
+        min: 1,
         max: 20.0
     },
     n1: {
-        min: .01,
-        max: 40.0
+        min: 1.0,
+        max: 20.0
     },
     n2: {
-        min: .01,
-        max: 40.0
+        min: 1.0,
+        max: 20.0
     },
     n3: {
-        min: .01,
-        max: 40.0
+        min: 1.0,
+        max: 5.0
     },
     iterations: {
         min: 1,
@@ -69,10 +70,29 @@ var parameters = {
         max: paramLimits.decay.max
     },
     invert: false,
-    closePaths: false,
+    closePaths: true,
     rows: 1,
     columns: 1,
     resolution: 360
+}
+
+var parametersTuning = {
+    tuning: {
+        a: parseFloat(random(paramLimits.a.min, paramLimits.a.max)).toFixed(2),
+        b: parseFloat(random(paramLimits.b.min, paramLimits.b.max)).toFixed(2),
+        m: 3,
+        n1: parseFloat(random(paramLimits.n1.min, paramLimits.n1.max)).toFixed(2),
+        n2: parseFloat(random(paramLimits.n2.min, paramLimits.n2.max)).toFixed(2),
+        n3: parseFloat(random(paramLimits.n3.min, paramLimits.n3.max)).toFixed(2),
+        iterations: parseInt(random(paramLimits.iterations.min, paramLimits.iterations.max)),
+        decay: parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)).toFixed(2),
+        invert: false,
+        closePaths: true,
+        resolution: 360
+    },
+    range: {
+
+    }
 }
 
 var controlFunctions = {
@@ -81,20 +101,41 @@ var controlFunctions = {
     image: function() { exportImage(); }
 };
 
+var canvas;
+var imageDownloadLink;
+
+var largestRadius;
+
 //========================================================================================
-// Main program
+//  MAIN FUNCTIONALITY
 //========================================================================================
 window.onload = function() {
     // Set up PaperJS
-    var canvas = document.getElementById('superformula-canvas');
+    canvas = document.getElementById('superformula-canvas');
     paper.setup(canvas);
 
     // Present choice between 'tuning' and 'range' mode
+
     setupGUI();
-    generateForms();   
+    setupDownloadLink();
+    generateForms();
 }
+
+
 //========================================================================================
 
+//========================================================================================
+function setupDownloadLink() {
+    var body = document.getElementsByTagName('body');
+    imageDownloadLink = document.createElement('a');
+    imageDownloadLink.innerHTML = 'Export as image';
+    imageDownloadLink.download = 'superformula.png';
+}
+
+
+//========================================================================================
+//  BACKGROUND DRAWING FUNCTIONS
+//========================================================================================
 function drawBackground() {
     paper.project.clear();
 
@@ -111,11 +152,42 @@ function drawBackground() {
     }
 }
 
-function setupGUI() {
-    console.log('Setting up GUI');
+// Draw row and column divider lines
+function drawGrid() {
+    for(var i=1; i<parameters.rows; i++) {
+        var rowLine = paper.Path.Line(
+            new paper.Point(0, i*(window.innerHeight/parameters.rows)),
+            new paper.Point(window.innerWidth, i*(window.innerHeight/parameters.rows))
+        );
 
+        if(parameters.invert) {
+            rowLine.strokeColor = new paper.Color(1, 1, 1, .1);
+        } else {
+            rowLine.strokeColor = new paper.Color(0, 0, 0, .1);
+        }
+    }
+
+    for(var i=1; i<parameters.columns; i++) {
+        var columnLine = paper.Path.Line(
+            new paper.Point(i*(window.innerWidth/parameters.columns), 0),
+            new paper.Point(i*(window.innerWidth/parameters.columns), window.innerHeight)
+        );
+
+        if(parameters.invert) {
+            columnLine.strokeColor = new paper.Color(1, 1, 1, .1);
+        } else {
+            columnLine.strokeColor = new paper.Color(0, 0, 0, .1);
+        }
+    }
+}
+
+
+//========================================================================================
+//  GUI
+//========================================================================================
+function setupGUI() {
     gui = new dat.GUI();
-    gui.width = 300;
+    gui.width = 350;
     
     var aFolder = gui.addFolder('a');
     var bFolder = gui.addFolder('b');
@@ -132,8 +204,13 @@ function setupGUI() {
     bFolder.add(parameters.b, 'min', paramLimits.b.min, paramLimits.b.max);
     bFolder.add(parameters.b, 'max', paramLimits.b.min, paramLimits.b.max);
 
-    mFolder.add(parameters.m, 'min', paramLimits.m.min, paramLimits.m.max);
-    mFolder.add(parameters.m, 'max', paramLimits.m.min, paramLimits.m.max);
+    mMinSlider = mFolder.add(parameters.m, 'min', paramLimits.m.min, paramLimits.m.max);
+    mMaxSlider = mFolder.add(parameters.m, 'max', paramLimits.m.min, paramLimits.m.max);
+
+    if(parameters.closePaths) {
+        mMinSlider.step(2);
+        mMaxSlider.step(2);
+    }
 
     n1Folder.add(parameters.n1, 'min', paramLimits.n1.min, paramLimits.n1.max);
     n1Folder.add(parameters.n1, 'max', paramLimits.n1.min, paramLimits.n1.max);
@@ -150,8 +227,8 @@ function setupGUI() {
     decayFolder.add(parameters.decay, 'min', paramLimits.decay.min, paramLimits.decay.max);
     decayFolder.add(parameters.decay, 'max', paramLimits.decay.min, paramLimits.decay.max);
 
-    gui.add(parameters, 'invert', false).name('Invert colors').onChange(invertColors);
-    gui.add(parameters, 'closePaths', false).name('Only show closed paths');
+    gui.add(parameters, 'invert', false).name('Invert colors');
+    gui.add(parameters, 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
 
     gui.add(parameters, 'rows', 1, 5).name('Rows').step(1);
     gui.add(parameters, 'columns', 1, 8).name('Columns').step(1);
@@ -163,26 +240,56 @@ function setupGUI() {
     gui.add(controlFunctions, 'image').name('Export image');
 }
 
-function generateForms() {
-    console.log('Generating new forms');
 
+//========================================================================================
+//  SUPERFORMULA FUNCTIONS
+//========================================================================================
+function generateForms() {
     drawBackground();
+    drawGrid();
 
     var cellWidth = window.innerWidth / parameters.columns;
     var cellHeight = window.innerHeight / parameters.rows;
+    var smallestDimension;
 
-    for(var i=1; i<=parameters.rows; i++) {
-        for(var j=1; j<=parameters.columns; j++) {
+    // Find the smallest dimension for scaling later
+    if(cellWidth < cellHeight) {
+        smallestDimension = cellWidth;
+    } else {
+        smallestDimension = cellHeight;
+    }
+
+    // For each row/column cell ...
+    for(var i=0; i<parameters.rows; i++) {
+        for(var j=0; j<parameters.columns; j++) {
             var params = {};
             params.a = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
-            params.b = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
-            params.m = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
-            params.n1 = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
-            params.n2 = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
-            params.n3 = parseFloat(random(parameters.a.min, parameters.a.max)).toFixed(2);
+            params.b = parseFloat(random(parameters.b.min, parameters.b.max)).toFixed(2);
+
+            // To ensure paths are closed, only allow even integers
+            if(parameters.closePaths) {
+                params.m = parseInt(random(parameters.m.min, parameters.m.max));
+
+                if(params.m % 2 != 0) {
+                    if(params.m + 1 >= paramLimits.m.max) {
+                        params.m--;
+                    } else {
+                        params.m++;
+                    }
+                }
+            } else {
+                params.m = parseFloat(random(parameters.m.min, parameters.m.max)).toFixed(2);
+            }
+
+            params.n1 = parseFloat(random(parameters.n1.min, parameters.n1.max)).toFixed(2);
+            params.n2 = parseFloat(random(parameters.n2.min, parameters.n2.max)).toFixed(2);
+            params.n3 = parseFloat(random(parameters.n3.min, parameters.n3.max)).toFixed(2);
             params.iterations = parseInt(random(parameters.iterations.min, parameters.iterations.max));
             params.decay = parseFloat(random(parameters.decay.min, parameters.decay.max)).toFixed(2);
 
+            largestRadius = 0;
+
+            // Generate the superformula shape, with any iterations
             var paths = [];
 
             for(k=params.iterations; k>0; k--) {
@@ -194,23 +301,23 @@ function generateForms() {
                         params.n1 - k*params.decay, 
                         params.n2 - k*params.decay, 
                         params.n3 - k*params.decay,
-                        (cellWidth/2) * j,
-                        (cellHeight/2) * i
+                        j * (window.innerWidth / parameters.columns) + (window.innerWidth / parameters.columns/2),
+                        i * (window.innerHeight / parameters.rows) + (window.innerHeight / parameters.rows/2)
                     )
                 );
             }
 
-            // Group, position, and scale all paths
+            // Combine all iterations into a Group
             var group = new paper.Group(paths);
 
-            // Scale to fit cell
+            // Scale Group to fit cell
             var bounds = group.strokeBounds;
             var scaleFactor;
             
-            if(cellWidth < cellHeight) {
-                scaleFactor = cellWidth/bounds.width;
+            if(bounds.width < bounds.height) {
+                scaleFactor = (cellHeight * .75) / (largestRadius * 2);
             } else {
-                scaleFactor = cellHeight/bounds.height;
+                scaleFactor = (cellWidth * .75) / (largestRadius * 2);
             }
             
             group.scale(scaleFactor);
@@ -218,6 +325,7 @@ function generateForms() {
     }
 }
 
+// Generate one complete path comprised of points located using superformula
 function getSuperformulaPath(a, b, m, n1, n2, n3, xOffset, yOffset) {
     var phi = (Math.PI*2) / parameters.resolution;
 
@@ -226,17 +334,17 @@ function getSuperformulaPath(a, b, m, n1, n2, n3, xOffset, yOffset) {
     if(parameters.invert) {
         path.strokeColor = new paper.Color(1, 1, 1, .80);
     } else {
-        path.strokeColor = new paper.Color(0, 0, 0, .95);
+        path.strokeColor = new paper.Color(0, 0, 0, .80);
     }
     
-
-    for(var i=0; i<parameters.resolution; i++) {
+    for(var i=0; i<=parameters.resolution; i++) {
         path.add(getSuperformulaPoint(phi*i, a, b, m, n1, n2, n3, xOffset, yOffset));
     }
 
     return path;
 }
 
+// Calculate the x,y position of a single point for a given angle (phi)
 function getSuperformulaPoint(phi, a, b, m, n1, n2, n3, xOffset, yOffset) {
     var point = {};
 
@@ -263,28 +371,77 @@ function getSuperformulaPoint(phi, a, b, m, n1, n2, n3, xOffset, yOffset) {
         point.y = r * Math.sin(phi);
     }
 
+    radius = Math.sqrt(point.x * point.x + point.y * point.y);
+
+    if(radius > largestRadius) {
+        largestRadius = radius;
+    }
+
     point.x += xOffset;
     point.y += yOffset;
 
     return point;
 }
 
+
+//========================================================================================
+//  INTERFACE FUNCTIONS
+//========================================================================================
+
+// Export current canvas to SVG file using FileSaver.js
 function exportSVG() {
     console.log('exporting SVG');
+
     var svg = paper.project.exportSVG({asString: true});
     var blob = new Blob([svg], {type: "image/svg+xml;charset=utf-8"});
     saveAs(blob, 'superformula.svg');
 }
 
+// Export raster image of current canvas
 function exportImage() {
     console.log('exporting image');
+
+    canvas.toBlob(function(blob) {
+        imageDownloadLink.href = URL.createObjectURL(blob);
+        imageDownloadLink.click();
+        console.log(imageDownloadLink);
+    });
 }
+
+// 'Close paths' checkbox controls constraints on the 'm' sliders
+function closePaths() {
+    var newMin, newStep;
+
+    if(parameters.closePaths) {
+        newMin = 2;
+        newStep = 2;
+    } else {
+        newMin = .01;
+        newStep = (paramLimits.m.max - newMin) / 100;
+    }
+
+    paramLimits.m.min = newMin;
+    mMinSlider.min(paramLimits.m.min);
+    mMaxSlider.min(paramLimits.m.min);
+    mMinSlider.step(newStep);
+    mMaxSlider.step(newStep);
+
+    if(parameters.closePaths) {
+        var mMinSliderValue = mMinSlider.getValue();
+        var mMaxSliderValue = mMaxSlider.getValue();
+
+        // Round min value to nearest even integer
+        mMinSlider.setValue(2*Math.round(mMinSliderValue/2));
+        mMaxSlider.setValue(2*Math.round(mMaxSliderValue/2));
+    }
+}
+
+
+//========================================================================================
+//  UTILITY FUNCITONS
+//========================================================================================
 
 // Small utility function to generate random within range, a la Processing
 function random(min, max) {
     return Math.random() * (max-min) + min
-}
-
-function invertColors() {
-    console.log('inverting colors');
 }
