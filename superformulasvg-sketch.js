@@ -24,11 +24,11 @@ var paramLimits = {
     },
     n3: {
         min: 1.0,
-        max: 5.0
+        max: 20.0
     },
     iterations: {
         min: 1,
-        max: 10
+        max: 20
     },
     decay: {
         min: .05,
@@ -102,7 +102,10 @@ var controlFunctions = {
 };
 
 var canvas;
-var imageDownloadLink;
+var backgroundLayer, gridLayer, superformulaLayers;
+var darkBackgroundColor, lightBackgroundColor;
+var darkStrokeColor, lightStrokeColor;
+var darkGridColor, lightGridColor;
 
 var largestRadius;
 
@@ -116,29 +119,24 @@ window.onload = function() {
 
     // Present choice between 'tuning' and 'range' mode
 
+    // Now that PaperJS scope is set up, we can use it to define global colors
+    darkBackgroundColor = new paper.Color(0, 0, 0, .9);
+    lightBackgroundColor = new paper.Color(0, 0, 0, .05);
+
+    darkStrokeColor = new paper.Color(1, 1, 1, .80);
+    lightStrokeColor = new paper.Color(0, 0, 0, .80);
+
+    darkGridColor = new paper.Color(1, 1, 1, .1);
+    lightGridColor = new paper.Color(0, 0, 0, .1);
+
     setupGUI();
-    setupDownloadLink();
     generateForms();
 }
-
-
-//========================================================================================
-
-//========================================================================================
-function setupDownloadLink() {
-    var body = document.getElementsByTagName('body');
-    imageDownloadLink = document.createElement('a');
-    imageDownloadLink.innerHTML = 'Export as image';
-    imageDownloadLink.download = 'superformula.png';
-}
-
 
 //========================================================================================
 //  BACKGROUND DRAWING FUNCTIONS
 //========================================================================================
 function drawBackground() {
-    paper.project.clear();
-
     var background = new paper.Path.Rectangle({
         point: [0, 0],
         size: [innerWidth, window.innerHeight]
@@ -146,14 +144,18 @@ function drawBackground() {
     background.sendToBack();
 
     if(parameters.invert) {
-        background.fillColor = new paper.Color(0, 0, 0, .90);
+        background.fillColor = darkBackgroundColor;
     } else {
-        background.fillColor = new paper.Color(0, 0, 0, .05);
+        background.fillColor = lightBackgroundColor;
     }
+
+    backgroundLayer = new paper.Layer(background);
 }
 
 // Draw row and column divider lines
 function drawGrid() {
+    var gridLines = [];
+
     for(var i=1; i<parameters.rows; i++) {
         var rowLine = paper.Path.Line(
             new paper.Point(0, i*(window.innerHeight/parameters.rows)),
@@ -161,10 +163,12 @@ function drawGrid() {
         );
 
         if(parameters.invert) {
-            rowLine.strokeColor = new paper.Color(1, 1, 1, .1);
+            rowLine.strokeColor = darkGridColor;
         } else {
-            rowLine.strokeColor = new paper.Color(0, 0, 0, .1);
+            rowLine.strokeColor = lightGridColor;
         }
+
+        gridLines.push(rowLine);
     }
 
     for(var i=1; i<parameters.columns; i++) {
@@ -174,11 +178,15 @@ function drawGrid() {
         );
 
         if(parameters.invert) {
-            columnLine.strokeColor = new paper.Color(1, 1, 1, .1);
+            columnLine.strokeColor = darkGridColor;
         } else {
-            columnLine.strokeColor = new paper.Color(0, 0, 0, .1);
+            columnLine.strokeColor = lightGridColor;
         }
+
+        gridLines.push(columnLine);
     }
+
+    gridLayer = new paper.Layer(gridLines);
 }
 
 
@@ -227,7 +235,7 @@ function setupGUI() {
     decayFolder.add(parameters.decay, 'min', paramLimits.decay.min, paramLimits.decay.max);
     decayFolder.add(parameters.decay, 'max', paramLimits.decay.min, paramLimits.decay.max);
 
-    gui.add(parameters, 'invert', false).name('Invert colors');
+    gui.add(parameters, 'invert', false).name('Invert colors').onChange(invertColors);
     gui.add(parameters, 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
 
     gui.add(parameters, 'rows', 1, 5).name('Rows').step(1);
@@ -245,12 +253,14 @@ function setupGUI() {
 //  SUPERFORMULA FUNCTIONS
 //========================================================================================
 function generateForms() {
+    paper.project.clear();
     drawBackground();
     drawGrid();
 
     var cellWidth = window.innerWidth / parameters.columns;
     var cellHeight = window.innerHeight / parameters.rows;
     var smallestDimension;
+    var allPaths = [];
 
     // Find the smallest dimension for scaling later
     if(cellWidth < cellHeight) {
@@ -321,8 +331,16 @@ function generateForms() {
             }
             
             group.scale(scaleFactor);
+
+            // Add Group to broader path collection for layer grouping later
+            allPaths.push(group);
         }
     }
+
+    // Add all superformula forms to a new layer
+    superformulaLayers = new paper.Layer(allPaths);
+
+    paper.view.draw();
 }
 
 // Generate one complete path comprised of points located using superformula
@@ -332,9 +350,9 @@ function getSuperformulaPath(a, b, m, n1, n2, n3, xOffset, yOffset) {
     var path = new paper.Path();
 
     if(parameters.invert) {
-        path.strokeColor = new paper.Color(1, 1, 1, .80);
+        path.strokeColor = darkStrokeColor;
     } else {
-        path.strokeColor = new paper.Color(0, 0, 0, .80);
+        path.strokeColor = lightStrokeColor;
     }
     
     for(var i=0; i<=parameters.resolution; i++) {
@@ -390,8 +408,6 @@ function getSuperformulaPoint(phi, a, b, m, n1, n2, n3, xOffset, yOffset) {
 
 // Export current canvas to SVG file using FileSaver.js
 function exportSVG() {
-    console.log('exporting SVG');
-
     var svg = paper.project.exportSVG({asString: true});
     var blob = new Blob([svg], {type: "image/svg+xml;charset=utf-8"});
     saveAs(blob, 'superformula.svg');
@@ -399,13 +415,20 @@ function exportSVG() {
 
 // Export raster image of current canvas
 function exportImage() {
-    console.log('exporting image');
+    paper.view.element.toBlob(function(blob) { saveAs(blob, 'superformula.png'); });
+}
 
-    canvas.toBlob(function(blob) {
-        imageDownloadLink.href = URL.createObjectURL(blob);
-        imageDownloadLink.click();
-        console.log(imageDownloadLink);
-    });
+// Invert colors without regenerating forms
+function invertColors() {
+    if(parameters.invert) {
+        backgroundLayer.fillColor = darkBackgroundColor;
+        gridLayer.strokeColor = darkGridColor;
+        superformulaLayers.strokeColor = darkStrokeColor;
+    } else {
+        backgroundLayer.fillColor = lightBackgroundColor;
+        gridLayer.strokeColor = lightGridColor;
+        superformulaLayers.strokeColor = lightStrokeColor;
+    }
 }
 
 // 'Close paths' checkbox controls constraints on the 'm' sliders
@@ -445,3 +468,24 @@ function closePaths() {
 function random(min, max) {
     return Math.random() * (max-min) + min
 }
+
+
+//========================================================================================
+//  KEYBOARD CONTROLS
+//========================================================================================
+document.addEventListener('keyup', function(event) {
+    switch(event.key) {
+        case ' ':
+            generateForms();
+            break;
+        case 's':
+            exportSVG();
+            break;
+        case 'i':
+            // invert colors
+            break;
+        case 'm':
+            exportImage();
+            break;
+    }
+});
