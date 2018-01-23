@@ -1,3 +1,57 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+/**
+    CUSTOM STYLES
+*/
+
 body {
     margin: 0;
     overflow: hidden;
@@ -5,15 +59,72 @@ body {
     font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-.dg.ac {
-    margin-right: 20px;
+
+.logo {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 1;
 }
 
+    .logo h1 {
+        display: inline-block;
+        margin: 0;
+        margin-right: 10px;
+    }
+
+        .logo h1 a {
+            margin: 0;
+            display: block;
+            padding: 10px 20px;
+            background-color: rgba(0,0,0,.8);
+        
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 3px;
+            color: rgba(255,255,255,.8);
+            text-decoration: none;
+
+            transition: all .2s ease;
+        }
+
+            .logo h1 a:hover {
+                color: rgba(255,255,255,1);
+                box-shadow:  3px 3px 5px rgba(0,0,0,.2);
+                margin-left: 5px;
+            }
+
+    .logo .icon-link {
+        display: inline-block;
+        margin-left: 5px;
+
+        font-size: 22px;
+        color: rgba(0,0,0,.2);
+
+        transition: all .2s ease;
+    }
+
+        .logo .icon-link:hover {
+            color: rgba(0,0,0,.7);
+        }
+
+        .logo .icon-link.hide {
+            display: none;
+        }
+
+
+/*
+* Canvas
+*/
 canvas {
     width: 100%;
     height: 100%;
 }
 
+
+/*
+* Mode selection screen
+*/
 .container {
     position: absolute;
     left: 0;
@@ -66,10 +177,11 @@ canvas {
     }
 
 .container .help {
-    color: rgba(0,0,0,.3);
+    color: rgba(0,0,0,.2);
     cursor: pointer;
-    transition: all .1s ease;
-    margin-top: 100px;
+    transition: all .2s ease;
+    margin-top: 50px;
+    text-decoration: none;
 }
 
     .container .help:hover {
@@ -77,6 +189,21 @@ canvas {
         color: rgba(0,0,0,.6);
     }
 
+.container .github-link {
+    margin-top: 30px;
+    font-size: 30px;
+    color: rgba(0,0,0,.2);
+    transition: all .2s ease;
+}
+
+    .container .github-link:hover {
+        color: rgba(0,0,0,.7);
+    }
+
+
+/* 
+* Utility classes
+*/
 .hide {
     display: none;
 }

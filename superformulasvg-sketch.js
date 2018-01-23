@@ -1,20 +1,24 @@
+// Global 'mode' used to funnel GUI and interactions
 var mode;
 var TUNING = 0;
 var RANGE = 1;
 
-var container;
-
+// dat.gui elements
 var gui;
-var mMinSlider, mMaxSlider;
+var aSlider, bSlider, mSlider, n1Slider, n2Slider, n3Slider, iterationsSlider, decaySlider;
+var aMinSlider, bMinSlider, mMinSlider, n1MinSlider, n2MinSlider, n3MinSlider, iterationsMinSlider, decayMinSlider;
+var aMaxSlider, bMaxSlider, mMaxSlider, n1MaxSlider, n2MaxSlider, n3MaxSlider, iterationsMaxSlider, decayMaxSlider;
+var invertButton, closePathsButton;
 
+// Min/max limits for superformula params, use for randomization and clamping
 var paramLimits = {
     a: {
         min: 1.0,
-        max: 8.0
+        max: 20.0
     },
     b: {
         min: 1.0,
-        max: 8.0
+        max: 20.0
     },
     m: {
         min: 1.0,
@@ -22,15 +26,15 @@ var paramLimits = {
     },
     n1: {
         min: 2.0,
-        max: 20.0
+        max: 80.0
     },
     n2: {
-        min: 1.0,
-        max: 20.0
+        min: 4.0,
+        max: 80.0
     },
     n3: {
-        min: 1.0,
-        max: 20.0
+        min: 4.0,
+        max: 80.0
     },
     iterations: {
         min: 1,
@@ -42,20 +46,20 @@ var paramLimits = {
     }
 };
 
+// Active parameters that are connected to dat.gui elements
 var parameters = [
     // Tuning mode
     {
-        a: Number(parseFloat(random(paramLimits.a.min, paramLimits.a.max)).toFixed(2)),
-        b: Number(parseFloat(random(paramLimits.b.min, paramLimits.b.max)).toFixed(2)),
-        m: Number(3),
-        n1: Number(parseFloat(random(paramLimits.n1.min, paramLimits.n1.max)).toFixed(2)),
-        n2: Number(parseFloat(random(paramLimits.n2.min, paramLimits.n2.max)).toFixed(2)),
-        n3: Number(parseFloat(random(paramLimits.n3.min, paramLimits.n3.max)).toFixed(2)),
+        a: parseFloat(random(paramLimits.a.min, paramLimits.a.max)),
+        b: parseFloat(random(paramLimits.b.min, paramLimits.b.max)),
+        m: 3,
+        n1: parseFloat(random(paramLimits.n1.min, paramLimits.n1.max)),
+        n2: parseFloat(random(paramLimits.n2.min, paramLimits.n2.max)),
+        n3: parseFloat(random(paramLimits.n3.min, paramLimits.n3.max)),
         iterations: parseInt(random(paramLimits.iterations.min, paramLimits.iterations.max)),
-        decay: Number(parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)).toFixed(2)),
+        decay: parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)),
         invert: false,
-        closePaths: true,
-        resolution: 1080
+        closePaths: true
     },
 
     // Range mode
@@ -95,24 +99,28 @@ var parameters = [
         invert: false,
         closePaths: true,
         rows: 2,
-        columns: 3,
-        resolution: 360
+        columns: 3
     }
 ];
 
+// Functions that get called by dat.gui buttons
 var controlFunctions = {
+    randomize: function() { randomizeParameters(); },
     generate: function() { generateForms(); },
     svg: function() { exportSVG(); },
     image: function() { exportImage(); }
 };
 
+// Canvas and related Paper.js drawing variables
 var canvas;
 var backgroundLayer, gridLayer, superformulaLayers;
 var darkBackgroundColor, lightBackgroundColor;
 var darkStrokeColor, lightStrokeColor;
 var darkGridColor, lightGridColor;
+var container;
 
 var largestRadius;
+
 
 //========================================================================================
 //  MAIN FUNCTIONALITY
@@ -156,10 +164,7 @@ function showChoices() {
             tuneLink.className = 'block';
             tuneLink.innerHTML = 'Tune <div>Dial in a <strong>specific</strong> shape</div>';
             tuneLink.addEventListener('click', function() {
-                hideChoices();
-                setMode(TUNING);
-                setupGUI();
-                generateForms();
+                launchApp(TUNING);
             });
             row.appendChild(tuneLink);
 
@@ -167,10 +172,7 @@ function showChoices() {
             rangeLink.className = 'block'
             rangeLink.innerHTML = 'Discover <div>Create <strong>randomized</strong> shapes</div>';
             rangeLink.addEventListener('click', function() {
-                hideChoices();
-                setMode(RANGE);
-                setupGUI();
-                generateForms();
+                launchApp(RANGE);
             });
             row.appendChild(rangeLink);
 
@@ -179,7 +181,13 @@ function showChoices() {
         // Help link row
         row = document.createElement('div');
         row.classList = 'row';
-        row.innerHTML = '<a class="help">What is this?</span>';
+        row.innerHTML = '<a href="javascript:void(0)" class="help">What is this?</a>';
+        container.appendChild(row);
+
+        // Github repo link row
+        row = document.createElement('div');
+        row.classList = 'row';
+        row.innerHTML += '<a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-link" target="_blank" alt="Link to Github repo" title="See the source code on Github"><i class="fab fa-github"></i></a>';
         container.appendChild(row);
 
         // Add container to body
@@ -203,10 +211,12 @@ function drawBackground() {
     });
     background.sendToBack();
 
-    if(parameters[mode].invert) {
-        background.fillColor = darkBackgroundColor;
-    } else {
-        background.fillColor = lightBackgroundColor;
+    if(typeof parameters[mode].invert) {
+        if(parameters[mode].invert) {
+            background.fillColor = darkBackgroundColor;
+        } else {
+            background.fillColor = lightBackgroundColor;
+        }
     }
 
     backgroundLayer = new paper.Layer(background);
@@ -255,6 +265,22 @@ function drawGrid() {
 //========================================================================================
 //  GUI
 //========================================================================================
+function launchApp(mode) {
+    hideChoices();
+    showIconLinks();
+    setMode(mode);
+    setupGUI();
+    generateForms();
+}
+
+function showIconLinks() {
+    var iconLinks = document.querySelectorAll('.icon-link');
+    
+    iconLinks.forEach(link => {
+        link.className = link.className.replace(/\hide\b/g, "");
+    });
+}
+
 function setMode(newMode) {
     mode = newMode;
 }
@@ -265,16 +291,17 @@ function setupGUI() {
 
     // Tuning mode UI -----------------------------------------------------------------------
     if(mode == TUNING) {
-        gui.add(parameters[TUNING], 'a', paramLimits.a.min, paramLimits.a.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'b', paramLimits.b.min, paramLimits.b.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'm', paramLimits.m.min, paramLimits.m.max, 2).onChange(generateForms);
-        gui.add(parameters[TUNING], 'n1', paramLimits.n1.min, paramLimits.n1.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'n2', paramLimits.n2.min, paramLimits.n2.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'n3', paramLimits.n3.min, paramLimits.n3.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'iterations', paramLimits.iterations.min, paramLimits.iterations.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'decay', paramLimits.decay.min, paramLimits.decay.max).onChange(generateForms);
-        gui.add(parameters[TUNING], 'invert', false).name('Invert colors').onChange(invertColors);
-        gui.add(parameters[TUNING], 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
+        aSlider = gui.add(parameters[TUNING], 'a', paramLimits.a.min, paramLimits.a.max).onChange(generateForms);
+        bSlider = gui.add(parameters[TUNING], 'b', paramLimits.b.min, paramLimits.b.max).onChange(generateForms);
+        mSlider = gui.add(parameters[TUNING], 'm', paramLimits.m.min, paramLimits.m.max, 2).onChange(generateForms);
+        n1Slider = gui.add(parameters[TUNING], 'n1', paramLimits.n1.min, paramLimits.n1.max).onChange(generateForms);
+        n2Slider = gui.add(parameters[TUNING], 'n2', paramLimits.n2.min, paramLimits.n2.max).onChange(generateForms);
+        n3Slider = gui.add(parameters[TUNING], 'n3', paramLimits.n3.min, paramLimits.n3.max).onChange(generateForms);
+        iterationsSlider = gui.add(parameters[TUNING], 'iterations', paramLimits.iterations.min, paramLimits.iterations.max, 1).onChange(generateForms);
+        decaySlider = gui.add(parameters[TUNING], 'decay', paramLimits.decay.min, paramLimits.decay.max).onChange(generateForms);
+        invertButton = gui.add(parameters[TUNING], 'invert', false).name('Invert colors').onChange(invertColors);
+        closePaths = gui.add(parameters[TUNING], 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
+        gui.add(controlFunctions, 'randomize').name('Randomize');
         gui.add(controlFunctions, 'svg').name('Export SVG');
         gui.add(controlFunctions, 'image').name('Export image');
 
@@ -289,11 +316,11 @@ function setupGUI() {
         var iterationsFolder = gui.addFolder('iterations');
         var decayFolder = gui.addFolder('decay');
 
-        aFolder.add(parameters[RANGE].a, 'min', paramLimits.a.min, paramLimits.a.max);
-        aFolder.add(parameters[RANGE].a, 'max', paramLimits.a.min, paramLimits.a.max);
+        aMinSlider = aFolder.add(parameters[RANGE].a, 'min', paramLimits.a.min, paramLimits.a.max);
+        aMaxSlider = aFolder.add(parameters[RANGE].a, 'max', paramLimits.a.min, paramLimits.a.max);
 
-        bFolder.add(parameters[RANGE].b, 'min', paramLimits.b.min, paramLimits.b.max);
-        bFolder.add(parameters[RANGE].b, 'max', paramLimits.b.min, paramLimits.b.max);
+        bMinSlider = bFolder.add(parameters[RANGE].b, 'min', paramLimits.b.min, paramLimits.b.max);
+        bMaxSlider = bFolder.add(parameters[RANGE].b, 'max', paramLimits.b.min, paramLimits.b.max);
 
         mMinSlider = mFolder.add(parameters[RANGE].m, 'min', paramLimits.m.min, paramLimits.m.max);
         mMaxSlider = mFolder.add(parameters[RANGE].m, 'max', paramLimits.m.min, paramLimits.m.max);
@@ -303,28 +330,28 @@ function setupGUI() {
             mMaxSlider.step(2);
         }
 
-        n1Folder.add(parameters[RANGE].n1, 'min', paramLimits.n1.min, paramLimits.n1.max);
-        n1Folder.add(parameters[RANGE].n1, 'max', paramLimits.n1.min, paramLimits.n1.max);
+        n1MinSlider = n1Folder.add(parameters[RANGE].n1, 'min', paramLimits.n1.min, paramLimits.n1.max);
+        n1MaxSlider = n1Folder.add(parameters[RANGE].n1, 'max', paramLimits.n1.min, paramLimits.n1.max);
 
-        n2Folder.add(parameters[RANGE].n2, 'min', paramLimits.n2.min, paramLimits.n2.max);
-        n2Folder.add(parameters[RANGE].n2, 'max', paramLimits.n2.min, paramLimits.n2.max);
+        n2MinSlider = n2Folder.add(parameters[RANGE].n2, 'min', paramLimits.n2.min, paramLimits.n2.max);
+        n2MaxSlider = n2Folder.add(parameters[RANGE].n2, 'max', paramLimits.n2.min, paramLimits.n2.max);
 
-        n3Folder.add(parameters[RANGE].n3, 'min', paramLimits.n3.min, paramLimits.n3.max);
-        n3Folder.add(parameters[RANGE].n3, 'max', paramLimits.n3.min, paramLimits.n3.max);
+        n3MinSlider = n3Folder.add(parameters[RANGE].n3, 'min', paramLimits.n3.min, paramLimits.n3.max);
+        n3MaxSlider = n3Folder.add(parameters[RANGE].n3, 'max', paramLimits.n3.min, paramLimits.n3.max);
 
-        iterationsFolder.add(parameters[RANGE].iterations, 'min', paramLimits.iterations.min, paramLimits.iterations.max).step(1);
-        iterationsFolder.add(parameters[RANGE].iterations, 'max', paramLimits.iterations.min, paramLimits.iterations.max).step(1);
+        iterationsMinSlider = iterationsFolder.add(parameters[RANGE].iterations, 'min', paramLimits.iterations.min, paramLimits.iterations.max).step(1);
+        iterationsMaxSlider = iterationsFolder.add(parameters[RANGE].iterations, 'max', paramLimits.iterations.min, paramLimits.iterations.max).step(1);
 
-        decayFolder.add(parameters[RANGE].decay, 'min', paramLimits.decay.min, paramLimits.decay.max);
-        decayFolder.add(parameters[RANGE].decay, 'max', paramLimits.decay.min, paramLimits.decay.max);
+        decayMinSlider = decayFolder.add(parameters[RANGE].decay, 'min', paramLimits.decay.min, paramLimits.decay.max);
+        decayMaxSlider = decayFolder.add(parameters[RANGE].decay, 'max', paramLimits.decay.min, paramLimits.decay.max);
 
-        gui.add(parameters[RANGE], 'invert', false).name('Invert colors').onChange(invertColors);
-        gui.add(parameters[RANGE], 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
+        invertButton  =gui.add(parameters[RANGE], 'invert', false).name('Invert colors').onChange(invertColors);
+        closePathsButton = gui.add(parameters[RANGE], 'closePaths', false).name('Only allow closed paths').onChange(closePaths);
 
         gui.add(parameters[RANGE], 'rows', 1, 5).name('Rows').step(1);
         gui.add(parameters[RANGE], 'columns', 1, 8).name('Columns').step(1);
 
-        gui.add(parameters[RANGE], 'resolution', 360, 1080).name('Resolution').step(1);
+        gui.add(controlFunctions, 'randomize').name('Randomize');
 
         gui.add(controlFunctions, 'generate').name('Generate new forms');
         gui.add(controlFunctions, 'svg').name('Export SVG');
@@ -337,7 +364,9 @@ function setupGUI() {
 //  SUPERFORMULA FUNCTIONS
 //========================================================================================
 function generateForms() {
-    paper.project.clear();
+    if(paper.project != null) {
+        paper.project.clear();
+    }
 
     drawBackground();
 
@@ -504,7 +533,8 @@ function generateForms() {
 
 // Generate one complete path comprised of points located using superformula
 function getSuperformulaPath(a, b, m, n1, n2, n3, xOffset, yOffset) {
-    var phi = (Math.PI*2) / parameters[mode].resolution;
+    var resolution = 720;
+    var phi = (Math.PI*2) / resolution;
 
     var path = new paper.Path();
 
@@ -514,7 +544,7 @@ function getSuperformulaPath(a, b, m, n1, n2, n3, xOffset, yOffset) {
         path.strokeColor = lightStrokeColor;
     }
     
-    for(var i=0; i<=parameters[mode].resolution; i++) {
+    for(var i=0; i<=resolution; i++) {
         path.add(getSuperformulaPoint(phi*i, a, b, m, n1, n2, n3, xOffset, yOffset));
     }
 
@@ -558,6 +588,46 @@ function getSuperformulaPoint(phi, a, b, m, n1, n2, n3, xOffset, yOffset) {
     point.y += yOffset;
 
     return point;
+}
+
+// Randomize all parameters and generate new form(s)
+function randomizeParameters() {
+    if(mode == TUNING) {
+        aSlider.setValue(parseFloat(random(paramLimits.a.min, paramLimits.a.max)));
+        bSlider.setValue(parseFloat(random(paramLimits.b.min, paramLimits.b.max)));
+        mSlider.setValue(parseFloat(random(paramLimits.m.min, paramLimits.m.max)));
+        n1Slider.setValue(parseFloat(random(paramLimits.n1.min, paramLimits.n1.max)));
+        n2Slider.setValue(parseFloat(random(paramLimits.n2.min, paramLimits.n2.max)));
+        n3Slider.setValue(parseFloat(random(paramLimits.n3.min, paramLimits.n3.max)));
+        iterationsSlider.setValue(parseInt(random(paramLimits.iterations.min, paramLimits.iterations.max)));
+        decaySlider.setValue(parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)));
+    } else if(mode == RANGE) {
+        aMinSlider.setValue(parseFloat(random(paramLimits.a.min, paramLimits.a.max)));
+        aMaxSlider.setValue(parseFloat(random(aMinSlider.getValue(), paramLimits.a.max)));
+
+        bMinSlider.setValue(parseFloat(random(paramLimits.b.min, paramLimits.b.max)));
+        bMaxSlider.setValue(parseFloat(random(bMinSlider.getValue(), paramLimits.b.max)));
+
+        mMinSlider.setValue(parseFloat(random(paramLimits.m.min, paramLimits.m.max)));
+        mMaxSlider.setValue(parseFloat(random(mMinSlider.getValue(), paramLimits.m.max)));
+
+        n1MinSlider.setValue(parseFloat(random(paramLimits.n1.min, paramLimits.n1.max)));
+        n1MaxSlider.setValue(parseFloat(random(n1MinSlider.getValue(), paramLimits.n1.max)));
+
+        n2MinSlider.setValue(parseFloat(random(paramLimits.n2.min, paramLimits.n2.max)));
+        n2MaxSlider.setValue(parseFloat(random(n2MinSlider.getValue(), paramLimits.n2.max)));
+
+        n3MinSlider.setValue(parseFloat(random(paramLimits.n3.min, paramLimits.n3.max)));
+        n3MaxSlider.setValue(parseFloat(random(n3MinSlider.getValue(), paramLimits.n3.max)));
+
+        iterationsMinSlider.setValue(parseInt(random(paramLimits.iterations.min, paramLimits.iterations.max)));
+        iterationsMaxSlider.setValue(parseInt(random(iterationsMinSlider.getValue(), paramLimits.iterations.max)));
+
+        decayMinSlider.setValue(parseInt(random(paramLimits.decay.min, paramLimits.decay.max)));
+        decayMaxSlider.setValue(parseInt(random(decayMinSlider.getValue(), paramLimits.decay.max)));
+    }
+
+    generateForms();
 }
 
 
@@ -639,6 +709,7 @@ function random(min, max) {
 //  KEYBOARD CONTROLS
 //========================================================================================
 document.addEventListener('keyup', function(event) {
+    console.log(event.key);
     switch(event.key) {
         case ' ':
             generateForms();
@@ -647,10 +718,17 @@ document.addEventListener('keyup', function(event) {
             exportSVG();
             break;
         case 'i':
-            // invert colors
+            parameters[mode].invert = !parameters[mode].invert;
+            invertColors();
             break;
-        case 'm':
+        case 'p':
             exportImage();
+            break;
+        case 'r':
+            randomizeParameters();
+            break;
+        case 'Backspace':
+            // return to choices screen
             break;
     }
 });
