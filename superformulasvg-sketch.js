@@ -623,8 +623,8 @@ function randomizeParameters() {
         iterationsMinSlider.setValue(parseInt(random(paramLimits.iterations.min, paramLimits.iterations.max)));
         iterationsMaxSlider.setValue(parseInt(random(iterationsMinSlider.getValue(), paramLimits.iterations.max)));
 
-        decayMinSlider.setValue(parseInt(random(paramLimits.decay.min, paramLimits.decay.max)));
-        decayMaxSlider.setValue(parseInt(random(decayMinSlider.getValue(), paramLimits.decay.max)));
+        decayMinSlider.setValue(parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)));
+        decayMaxSlider.setValue(parseFloat(random(decayMinSlider.getValue(), paramLimits.decay.max)));
     }
 
     generateForms();
@@ -709,7 +709,6 @@ function random(min, max) {
 //  KEYBOARD CONTROLS
 //========================================================================================
 document.addEventListener('keyup', function(event) {
-    console.log(event.key);
     switch(event.key) {
         case ' ':
             generateForms();
