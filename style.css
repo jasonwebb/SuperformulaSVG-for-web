@@ -20,7 +20,6 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
@@ -45,6 +44,9 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+strong {
+    font-weight: bold;
 }
 
 
@@ -82,7 +84,8 @@ body {
             font-size: 14px;
             font-weight: bold;
             border-radius: 3px;
-            color: rgba(255,255,255,.8);
+            border: 1px solid rgba(255,255,255,.2);
+            color: rgba(255,255,255,.7);
             text-decoration: none;
 
             transition: all .2s ease;
@@ -100,8 +103,9 @@ body {
 
         font-size: 22px;
         color: rgba(0,0,0,.2);
+        vertical-align: text-top;
 
-        transition: all .2s ease;
+        transition: all .3s ease;
     }
 
         .logo .icon-link:hover {
@@ -110,6 +114,44 @@ body {
 
         .logo .icon-link.hide {
             display: none;
+        }
+
+        .logo .icon-link.inverted {
+            color: rgba(255,255,255,.3);
+        }
+
+            .logo .icon-link.inverted:hover {
+                color: rgba(255,255,255,.8);
+            }
+
+
+/*
+* Back link
+*/
+.back-link {
+    position: absolute;
+    left: 50px;
+    bottom: 50px;
+
+    z-index: 1;
+
+    font-size: 54px;
+    font-weight: normal;
+    color: rgba(0,0,0,.1);
+
+    transition: all .5s ease;
+}
+
+    .back-link:hover {
+        color: rgba(0,0,0,.7);
+    }
+
+    .back-link.inverted {
+        color: rgba(255,255,255,.2);
+    }
+
+        .back-link.inverted:hover {
+            color: rgba(255,255,255,.8);
         }
 
 
@@ -176,7 +218,7 @@ canvas {
         font-weight: normal;
     }
 
-.container .help {
+.container .help-link {
     color: rgba(0,0,0,.2);
     cursor: pointer;
     transition: all .2s ease;
@@ -184,13 +226,13 @@ canvas {
     text-decoration: none;
 }
 
-    .container .help:hover {
+    .container .help-link:hover {
         text-decoration: underline;
         color: rgba(0,0,0,.6);
     }
 
 .container .github-link {
-    margin-top: 30px;
+    padding-top: 30px;
     font-size: 30px;
     color: rgba(0,0,0,.2);
     transition: all .2s ease;

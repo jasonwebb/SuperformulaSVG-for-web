@@ -117,7 +117,10 @@ var backgroundLayer, gridLayer, superformulaLayers;
 var darkBackgroundColor, lightBackgroundColor;
 var darkStrokeColor, lightStrokeColor;
 var darkGridColor, lightGridColor;
-var container;
+
+var choiceContainer;
+var tuneBlock, rangeBlock, helpLink, backLink, iconLinks;
+var choicesSetup = false;
 
 var largestRadius;
 
@@ -148,56 +151,37 @@ window.onload = function() {
 //========================================================================================
 //  CHOICES SCREEN
 //========================================================================================
+function setupChoices() {
+    // Capture references to interactive DOM elements
+    choiceContainer = document.querySelector('.container');
+    tuneBlock = document.querySelector('.tune-block');
+    rangeBlock = document.querySelector('.range-block');
+    backLink = document.querySelector('.back-link');
+
+    // Add event listeners
+    backLink.addEventListener('click', reloadApp);
+
+    tuneBlock.addEventListener('click', function() {
+        launchApp(TUNING);
+    });
+
+    rangeBlock.addEventListener('click', function() {
+        launchApp(RANGE);
+    });
+
+    choicesSetup = true;
+}
+
 function showChoices() {
-    // Choice has already been presented due to presence of .container
-    if(typeof container != 'undefined') {
-        container.classList = 'container';
-    } else {
-        container = document.createElement('div');
-        container.className = 'container';
-
-        // Tune / Range choice row
-        var row = document.createElement('div');
-        row.className = 'row';
-
-            var tuneLink = document.createElement('a');
-            tuneLink.className = 'block';
-            tuneLink.innerHTML = 'Tune <div>Dial in a <strong>specific</strong> shape</div>';
-            tuneLink.addEventListener('click', function() {
-                launchApp(TUNING);
-            });
-            row.appendChild(tuneLink);
-
-            var rangeLink = document.createElement('a');
-            rangeLink.className = 'block'
-            rangeLink.innerHTML = 'Discover <div>Create <strong>randomized</strong> shapes</div>';
-            rangeLink.addEventListener('click', function() {
-                launchApp(RANGE);
-            });
-            row.appendChild(rangeLink);
-
-        container.appendChild(row);
-
-        // Help link row
-        row = document.createElement('div');
-        row.classList = 'row';
-        row.innerHTML = '<a href="javascript:void(0)" class="help">What is this?</a>';
-        container.appendChild(row);
-
-        // Github repo link row
-        row = document.createElement('div');
-        row.classList = 'row';
-        row.innerHTML += '<a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-link" target="_blank" alt="Link to Github repo" title="See the source code on Github"><i class="fab fa-github"></i></a>';
-        container.appendChild(row);
-
-        // Add container to body
-        var body = document.getElementsByTagName('body')[0];
-        body.appendChild(container);
+    if(!choicesSetup) {
+        setupChoices();
     }
+
+    choiceContainer.className = choiceContainer.className.replace(/\hide\b/g, "").trim();
 }
 
 function hideChoices() {
-    container.classList = "container hide";
+    choiceContainer.className += ' hide';
 }
 
 
@@ -211,7 +195,7 @@ function drawBackground() {
     });
     background.sendToBack();
 
-    if(typeof parameters[mode].invert) {
+    if(typeof parameters[mode].invert != 'undefined') {
         if(parameters[mode].invert) {
             background.fillColor = darkBackgroundColor;
         } else {
@@ -223,7 +207,7 @@ function drawBackground() {
 }
 
 // Draw row and column divider lines
-function drawGrid() {
+function drawGridLines() {
     var gridLines = [];
 
     // Row lines
@@ -273,12 +257,35 @@ function launchApp(mode) {
     generateForms();
 }
 
+// Reload app by hiding, clearing and destroying any elements that shouldn't be on 'choices' screen
+function reloadApp() {
+    if(paper != null && paper.project != null) {
+        paper.project.clear();
+    }
+
+    hideIconLinks();
+    gui.destroy();
+    showChoices();
+}
+
 function showIconLinks() {
-    var iconLinks = document.querySelectorAll('.icon-link');
+    if(typeof iconLinks == 'undefined') {
+        iconLinks = document.querySelectorAll('.icon-link');
+    }
     
-    iconLinks.forEach(link => {
-        link.className = link.className.replace(/\hide\b/g, "");
-    });
+    for(var i=0; i<iconLinks.length; i++) {
+        iconLinks[i].className = iconLinks[i].className.replace(/\hide\b/g, "").trim();
+    }
+}
+
+function hideIconLinks() {
+    if(typeof iconLinks == 'undefined') {
+        iconLinks = document.querySelectorAll('.icon-link');
+    }
+    
+    for(var i=0; i<iconLinks.length; i++) {
+        iconLinks[i].className += ' hide';
+    }
 }
 
 function setMode(newMode) {
@@ -371,7 +378,7 @@ function generateForms() {
     drawBackground();
 
     if(mode == RANGE) {
-        drawGrid();
+        drawGridLines();
     }
 
     var cellWidth, cellHeight;
@@ -626,8 +633,6 @@ function randomizeParameters() {
         decayMinSlider.setValue(parseFloat(random(paramLimits.decay.min, paramLimits.decay.max)));
         decayMaxSlider.setValue(parseFloat(random(decayMinSlider.getValue(), paramLimits.decay.max)));
     }
-
-    generateForms();
 }
 
 
@@ -656,12 +661,37 @@ function invertColors() {
         if(typeof gridLayer != 'undefined') {
             gridLayer.strokeColor = darkGridColor;
         }
+
+        backLink.className += ' inverted';
+        
+        for(var i=0; i<iconLinks.length; i++) {
+            iconLinks[i].className += ' inverted';;
+        }
+
+        if(mode == TUNING) {
+            parameters[RANGE].invert = true;
+        } else if(mode == RANGE) {
+            parameters[TUNING].invert = true;
+        }
+        
     } else {
         backgroundLayer.fillColor = lightBackgroundColor;
         superformulaLayers.strokeColor = lightStrokeColor;
 
         if(typeof gridLayer != 'undefined') {
             gridLayer.strokeColor = lightGridColor;
+        }
+
+        backLink.className = backLink.className.replace(/\inverted\b/g, "").trim();
+
+        for(var i=0; i<iconLinks.length; i++) {
+            iconLinks[i].className = iconLinks[i].className.replace(/\inverted\b/g, "").trim();
+        }
+
+        if(mode == TUNING) {
+            parameters[RANGE].invert = false;
+        } else if(mode == RANGE) {
+            parameters[TUNING].invert = false;
         }
     }
 }
