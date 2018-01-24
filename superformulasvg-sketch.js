@@ -301,6 +301,11 @@ function setupGUI() {
         aSlider = gui.add(parameters[TUNING], 'a', paramLimits.a.min, paramLimits.a.max).onChange(generateForms);
         bSlider = gui.add(parameters[TUNING], 'b', paramLimits.b.min, paramLimits.b.max).onChange(generateForms);
         mSlider = gui.add(parameters[TUNING], 'm', paramLimits.m.min, paramLimits.m.max, 2).onChange(generateForms);
+
+        if(parameters[TUNING].closePaths) {
+            mSlider.step(2);
+        }
+
         n1Slider = gui.add(parameters[TUNING], 'n1', paramLimits.n1.min, paramLimits.n1.max).onChange(generateForms);
         n2Slider = gui.add(parameters[TUNING], 'n2', paramLimits.n2.min, paramLimits.n2.max).onChange(generateForms);
         n3Slider = gui.add(parameters[TUNING], 'n3', paramLimits.n3.min, paramLimits.n3.max).onChange(generateForms);
@@ -709,18 +714,27 @@ function closePaths() {
     }
 
     paramLimits.m.min = newMin;
-    mMinSlider.min(paramLimits.m.min);
-    mMaxSlider.min(paramLimits.m.min);
-    mMinSlider.step(newStep);
-    mMaxSlider.step(newStep);
 
-    if(parameters[mode].closePaths) {
-        var mMinSliderValue = mMinSlider.getValue();
-        var mMaxSliderValue = mMaxSlider.getValue();
+    if(mode == TUNING) {
+        mSlider.min(paramLimits.m.min);
+        mSlider.step(newStep);
 
-        // Round min value to nearest even integer
-        mMinSlider.setValue(2*Math.round(mMinSliderValue/2));
-        mMaxSlider.setValue(2*Math.round(mMaxSliderValue/2));
+        var mSliderValue = mSlider.getValue();
+        mSlider.setValue(2*Math.round(mSliderValue/2));
+    } else if(mode == RANGE) {
+        mMinSlider.min(paramLimits.m.min);
+        mMaxSlider.min(paramLimits.m.min);
+        mMinSlider.step(newStep);
+        mMaxSlider.step(newStep);
+
+        if(parameters[mode].closePaths) {
+            var mMinSliderValue = mMinSlider.getValue();
+            var mMaxSliderValue = mMaxSlider.getValue();
+
+            // Round min value to nearest even integer
+            mMinSlider.setValue(2*Math.round(mMinSliderValue/2));
+            mMaxSlider.setValue(2*Math.round(mMaxSliderValue/2));
+        }
     }
 }
 
@@ -729,7 +743,7 @@ function closePaths() {
 //  UTILITY FUNCITONS
 //========================================================================================
 
-// Small utility function to generate random within range, a la Processing
+// Generate a random number within range, a la Processing
 function random(min, max) {
     return Math.random() * (max-min) + min
 }
@@ -755,9 +769,10 @@ document.addEventListener('keyup', function(event) {
             break;
         case 'r':
             randomizeParameters();
+            generateForms();
             break;
         case 'Backspace':
-            // return to choices screen
+            reloadApp();
             break;
     }
 });
