@@ -124,6 +124,8 @@ var choicesSetup = false;
 
 var largestRadius;
 
+var modal;
+
 
 //========================================================================================
 //  MAIN FUNCTIONALITY
@@ -142,6 +144,9 @@ window.onload = function() {
 
     darkGridColor = new paper.Color(1, 1, 1, .1);
     lightGridColor = new paper.Color(0, 0, 0, .1);
+
+    // Prepare modal window functionality
+    setupModal();
 
     // Present 'mode' choice to user
     showChoices();
@@ -369,6 +374,31 @@ function setupGUI() {
         gui.add(controlFunctions, 'svg').name('Export SVG');
         gui.add(controlFunctions, 'image').name('Export image');
     }
+}
+
+
+//========================================================================================
+//  HELP MODAL
+//========================================================================================
+
+function setupModal() {
+    modal = document.querySelector('.modal');
+    
+    var helpIconLink = document.querySelector('.help-icon-link');
+    helpIconLink.addEventListener('click', showModal);
+
+    var helpLink = document.querySelector('.help-link');
+    helpLink.addEventListener('click', showModal);
+}
+
+function showModal() {
+    modal.className = modal.className.replace(/\hide\b/g, "").trim();
+    modal.addEventListener('click', hideModal);
+}
+
+function hideModal() {
+    modal.className += ' hide';
+    modal.removeEventListener('click', hideModal)
 }
 
 
