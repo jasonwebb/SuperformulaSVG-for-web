@@ -57,6 +57,7 @@ Learn more about the superformula through:
 ## Technologies used
 * [dat.gui](https://github.com/dataarts/dat.gui) for the UI
 * [Paper.js](http://paperjs.org/) for SVG graphics
+* [Animate.css](https://github.com/daneden/animate.css) for pure CSS animations
 
 ---
 

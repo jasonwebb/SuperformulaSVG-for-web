@@ -118,13 +118,15 @@ var darkBackgroundColor, lightBackgroundColor;
 var darkStrokeColor, lightStrokeColor;
 var darkGridColor, lightGridColor;
 
+// Choice screen
 var choiceContainer;
 var tuneBlock, rangeBlock, helpLink, backLink, iconLinks;
 var choicesSetup = false;
 
 var largestRadius;
 
-var modal;
+// Modal window
+var modal, modalContent;
 
 
 //========================================================================================
@@ -159,6 +161,7 @@ window.onload = function() {
 function setupChoices() {
     // Capture references to interactive DOM elements
     choiceContainer = document.querySelector('.container');
+    choiceContent = document.querySelectorAll('.container .row');
     tuneBlock = document.querySelector('.tune-block');
     rangeBlock = document.querySelector('.range-block');
     backLink = document.querySelector('.back-link');
@@ -183,10 +186,18 @@ function showChoices() {
     }
 
     choiceContainer.className = choiceContainer.className.replace(/\hide\b/g, "").trim();
+    
+    for(var i=0; i<choiceContent.length; i++) {
+        choiceContent[i].className += ' animated fadeIn';
+    }
 }
 
 function hideChoices() {
     choiceContainer.className += ' hide';
+
+    for(var i=0; i<choiceContent.length; i++) {
+        choiceContent[i].className = choiceContent[i].className.replace(/\animated fadeIn\b/g, "").trim();
+    }
 }
 
 
@@ -200,7 +211,7 @@ function drawBackground() {
     });
     background.sendToBack();
 
-    if(typeof parameters[mode].invert != 'undefined') {
+    if(typeof parameters[mode] != 'undefined' && typeof parameters[mode].invert != 'undefined') {
         if(parameters[mode].invert) {
             background.fillColor = darkBackgroundColor;
         } else {
@@ -383,6 +394,7 @@ function setupGUI() {
 
 function setupModal() {
     modal = document.querySelector('.modal');
+    modalContent = document.querySelector('.modal .modal-content');
     
     var helpIconLink = document.querySelector('.help-icon-link');
     helpIconLink.addEventListener('click', showModal);
@@ -393,12 +405,25 @@ function setupModal() {
 
 function showModal() {
     modal.className = modal.className.replace(/\hide\b/g, "").trim();
+    modal.className = modal.className.replace(/\animated fadeOut\b/g, "").trim();
+    modal.className += ' animated fadeIn';
     modal.addEventListener('click', hideModal);
+
+    modalContent.className += ' animated fadeInDownBig';
+    modalContent.className = modalContent.className.replace(/\animated fadeOutUpBig\b/g, "").trim();
 }
 
 function hideModal() {
-    modal.className += ' hide';
+    modal.className = modal.className.replace(/\animated fadeIn\b/g, "").trim();
+    modal.className += ' animated fadeOut';
     modal.removeEventListener('click', hideModal)
+
+    setTimeout(function() {
+        modal.className += ' hide';
+    }, 1000);
+
+    modalContent.className = modalContent.className.replace(/\animated fadeInDownBig\b/g, "").trim();
+    modalContent.className += ' animated fadeOutUpBig';
 }
 
 
