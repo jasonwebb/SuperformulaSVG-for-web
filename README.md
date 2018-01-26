@@ -7,10 +7,10 @@ This application expands upon a [Processing sketch](https://github.com/jasonwebb
 ## Usage
 To start generating forms choose from either `Tune` or `Discover` mode on the initial screen. From there you will be presented with a menu on the right side of the screen that you can use to manipulate the parameters used to generate the shape(s) on the screen.
 
-### Tune
+### Tune mode
 In 'tuning' mode the sliders let you directly control the parameters of a single shape in real-time. Use them to craft a specific shape, perhaps based on interesting shapes you find in the 'Discover' mode.
 
-### Discover
+### Discover mode
 In 'discover' mode the sliders let you define the minimum and maximum values for each of the parameters, as well as the number of rows and columns you'd like to generate. 
 
 Both modes also include a few common buttons that you can use:
