@@ -507,18 +507,9 @@ function generateForms() {
             );
         }
 
-        // Group and scale to fit cell
+        // Group and scale to fit cell        
         var group = new paper.Group(paths);
-        var bounds = group.strokeBounds;
-        var scaleFactor;
-        
-        if(bounds.width < bounds.height) {
-            scaleFactor = (cellHeight * .75) / (largestRadius * 2);
-        } else {
-            scaleFactor = (cellWidth * .75) / (largestRadius * 2);
-        }
-        
-        group.scale(scaleFactor);
+        group.scale( (smallestDimension * .9) / (largestRadius * 2) );
 
         // Add Group to broader path collection for layer grouping later
         allPaths.push(group);
@@ -574,17 +565,8 @@ function generateForms() {
                 }
 
                 // Group and scale to fit cell
-                var group = new paper.Group(paths);
-                var bounds = group.strokeBounds;
-                var scaleFactor;
-                
-                if(bounds.width < bounds.height) {
-                    scaleFactor = (cellHeight * .75) / (largestRadius * 2);
-                } else {
-                    scaleFactor = (cellWidth * .75) / (largestRadius * 2);
-                }
-                
-                group.scale(scaleFactor);
+                var group = new paper.Group(paths);                
+                group.scale( (smallestDimension * .9) / (largestRadius * 2) );
     
                 // Add Group to broader path collection for layer grouping later
                 allPaths.push(group);
@@ -634,7 +616,7 @@ function getSuperformulaPoint(phi, a, b, m, n1, n2, n3, xOffset, yOffset) {
     t2 = Math.abs(t2);
     t2 = Math.pow(t2,n3);
   
-    r = Math.pow(t1 + t2, 1/ n1);
+    r = Math.pow(t1 + t2, 1 / n1);
     
     if(Math.abs(r) == 0) {
         point.x = 0;
