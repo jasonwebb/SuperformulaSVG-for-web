@@ -1,0 +1,29 @@
+{
+  "name": "superformulasvg-for-web",
+  "version": "1.0.0",
+  "description": "__SuperformulaSVG for web__ is an interactive drawing application that lets you generate shapes using the 2D superformula and export them in both SVG and raster image formats for use with laser cutters, plotters, or anything else you can think of!",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonwebb/superformulasvg-for-web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasonwebb/superformulasvg-for-web/issues"
+  },
+  "homepage": "https://github.com/jasonwebb/superformulasvg-for-web#readme",
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0"
+  }
+}

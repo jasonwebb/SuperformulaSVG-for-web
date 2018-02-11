@@ -56,6 +56,8 @@ strong {
 
 body {
     margin: 0;
+    padding: 0;
+    height: 100%;
     overflow: hidden;
 
     font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -158,9 +160,9 @@ body {
 /*
 * Canvas
 */
-canvas {
-    width: 100% !important;
-    height: 100% !important;
+canvas[data-paper-resize] {
+    width: 100%;
+    height: 100%;
 }
 
 

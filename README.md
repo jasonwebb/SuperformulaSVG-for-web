@@ -14,6 +14,7 @@ In 'tuning' mode the sliders let you directly control the parameters of a single
 In 'discover' mode the sliders let you define the minimum and maximum values for each of the parameters, as well as the number of rows and columns you'd like to generate. 
 
 Both modes also include a few common buttons that you can use:
+* `Draw parameters` displays the exact parameters for the form(s) on the screen. Also applies to exported images.
 * `Invert colors` flips the current color scheme, which will be reflected in any exported image.
 * `Only allow closed paths` forces the `m` parameter to always be an even, whole integer, which always results in forms that are closed. This is good if you'd like to do some interesting fill patterning later, but it does also limit the possibilities a little bit.
 * `Randomize` will choose new values for all of the sliders.
@@ -66,5 +67,7 @@ Learn more about the superformula through:
 ![Tune mode](docs/tune-mode.png)
 
 ![Discover mode](docs/discover-mode.png)
+
+![Inverted colors](docs/inverted-colors.png)
 
 ![Help screen](docs/help-modal.png)

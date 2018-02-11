@@ -28,7 +28,7 @@
     <meta name="twitter:image" content="https://jasonwebb.github.io/SuperformulaSVG-for-web/social-media-image.jpg">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -91,12 +91,17 @@
         </div>
     </div>
 
+    <!-- PaperJS canvas -->
     <canvas id="superformula-canvas" data-paper-resize="true"></canvas>
     
+    <!-- Third-party packages -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script>
-    <script type="text/javascript" src="paper-full.min.js" canvas="superformula-canvas"></script>
-    <script type="text/javascript" src="FileSaver.js"></script>
-    <script type="text/javascript" src="superformulasvg-sketch.js"></script>    
+    <script type="text/javascript" src="js/vendor/paper-full.min.js" canvas="superformula-canvas"></script>
+    <script type="text/javascript" src="js/vendor/FileSaver.js"></script>
+
+    <!-- Custom packages -->
+    <script type="text/javascript" src="dist/superformulasvg.min.js"></script>
+    
 </body>
 </html>
