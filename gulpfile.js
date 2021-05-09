@@ -1,28 +1,33 @@
-var gulp = require('gulp');
-var concat = require('gulp-concat');            // combine multiple files into one
-var sourcemaps = require('gulp-sourcemaps');    // makes minified code readable
-var del = require('del');                       // deletes files/folders from file system
-var uglify = require('gulp-uglify');            // minifies code
+const gulp = require("gulp");
+const { parallel, series } = require("gulp");
 
-// Remove all files from dist/ folder
-gulp.task('clean', function() {
-    del(['./dist/*.*']);
-});
+const uglify = require("gulp-uglify");
+const concat = require("gulp-concat");
+const browserSync = require("browser-sync").create(); //https://browsersync.io/docs/gulp#page-top
 
-// Build all JS files
-gulp.task('build', function() {
-    gulp.src(['./js/*.js'])
-        .pipe(sourcemaps.init())                        // start capturing code for sourcemaps
-            .pipe(uglify())                             // minify all code
-            .pipe(concat('superformulasvg.min.js'))     // combine all minified files into one
-        .pipe(sourcemaps.write())                       // end code capture and generate sourcemaps
-        .pipe(gulp.dest('./dist'));                     // place minified file in dist/ folder
-});
+// Scripts
+function js(cb) {
+    gulp.src("js/*js")
+        .pipe(concat("superformulasvg.min.js"))
+        .pipe(uglify())
+        .pipe(gulp.dest("dist"));
+    cb();
+}
 
-// Watch for changes to any custom JS, and kick of fresh build when found
-gulp.task('watch', function() {
-    gulp.watch('js/*.js', ['clean','build']);
-});
+// Watch Files
+function watch_files() {
+    browserSync.init({
+        server: {
+            baseDir: "./"
+        }
+    });
+    gulp.watch("js/*js", js).on("change", browserSync.reload);
+    gulp.watch("css/*css").on("change", browserSync.reload);
+    gulp.watch("index.html").on("change", browserSync.reload);
+}
 
-// Default task executes a fresh build of custom JS
-gulp.task('default', ['clean','build']);
+// Default 'gulp' command with start local server and watch files for changes.
+exports.default = series(js, watch_files);
+
+// 'gulp build' will build all assets but not run on a local server.
+exports.build = parallel(js);
