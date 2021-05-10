@@ -17,8 +17,8 @@ window.onload = function() {
     gridColor = new paper.Color(0, 0, 0, .1);
     invertedGridColor = new paper.Color(1, 1, 1, .1);
 
-    textColor = new paper.Color(0, 0, 0, .3);
-    invertedTextColor = new paper.Color(1, 1, 1, .2);
+    textColor = new paper.Color(0, 0, 0, .8);
+    invertedTextColor = new paper.Color(1, 1, 1, .6);
 
     // Prepare modal window functionality
     setupModal();

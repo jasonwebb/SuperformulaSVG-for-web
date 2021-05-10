@@ -6,7 +6,7 @@
 
     <title>SuperformulaSVG for web</title>
 
-    <link rel="icon" type="image/png" href="http://jasonwebb.io/wp-content/themes/minimal-for-jasonwebbio/images/favicon.png" sizes="32x32"> 
+    <link rel="icon" type="image/png" href="http://jasonwebb.io/wp-content/themes/minimal-for-jasonwebbio/images/favicon.png" sizes="32x32">
     <meta name="description" content="">
     <meta name="author" content="Jason Webb">
 
@@ -32,16 +32,43 @@
 </head>
 
 <body>
-    <div class="logo">
-        <h1><a href="https://jasonwebb.github.io/SuperformulaSVG-for-web" alt="Link to reload app" title="Reload the app">SuperformulaSVG</a></h1>
+    <header class="logo">
+        <h1><a href="https://jasonwebb.github.io/SuperformulaSVG-for-web">SuperformulaSVG</a></h1>
 
-        <a href="javascript:void(0)" class="help-icon-link icon-link hide" alt="Link to help modal window" title="Learn how to use this app"><i class="fa fa-question-circle"></i></a>
-        <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-icon-link icon-link hide" target="_blank" alt="Link to source code on Github" title="See the source code on Github"><i class="fab fa-github"></i></a>
-    </div>
+        <button class="help-icon-link icon-link hide" title="About this app">
+            <i class="fa fa-question-circle"></i>
+            <span class="sr-only">About this app</span>
+        </button>
 
-    <a href="javascript:void(0)" class="back-link icon-link hide"><i class="fa fa-arrow-left"></i></a>
+        <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-icon-link icon-link hide" title="See source code on Github">
+            <i class="fab fa-github" aria-hidden="true"></i>
+            <span class="sr-only">See source code on Github</span>
+        </a>
+    </header>
 
-    <div class="help-modal modal hide">
+    <main>
+        <div class="container">
+            <div class="row">
+                <button class="tune-block block">Tune <div>Dial in a <strong>specific</strong> shape</div></button>
+                <button class="range-block block">Discover <div>Create <strong>randomized</strong> shapes</div></button>
+            </div>
+
+            <div class="row">
+                <button class="help-link">What is this?</button>
+            </div>
+
+            <div class="row">
+                <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-link" title="See the source code on Github" aria-label="See the source code on Github"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+
+        <button class="back-link icon-link hide">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            <span class="sr-only">Back</span>
+        </button>
+    </main>
+
+    <div class="help-modal modal hide" role="dialog" aria-modal="true" aria-label="instructions" tabindex="-1">
         <div class="modal-content">
             <p><strong>SuperformulaSVG</strong> is a generative art web app that lets you create funky shapes using the <a href="https://en.wikipedia.org/wiki/Superformula" target="_blank">2D superformula</a> and save them to your computer as either SVG or PNG images for use with plotters, laser cutters, and more.</p>
             <p>You can use this app in two ways - to generate a specific shape by <u>tuning</u> the parameters, or to generate lots of shapes with parameters that are <u>randomized</u> within ranges.</u></p>
@@ -70,30 +97,15 @@
             </div>
 
             <p class="credits">
-                Code and docs can be found at: <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" target="_blank">https://github.com/jasonwebb/SuperformulaSVG-for-web</a><br>
-                Created by <a href="http://jasonwebb.io" target="_blank">Jason Webb</a>
+                Code and docs can be found at: <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web">https://github.com/jasonwebb/SuperformulaSVG-for-web</a><br>
+                Created by <a href="https://jasonwebb.io">Jason Webb</a>
             </p>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="row">
-            <div class="tune-block block">Tune <div>Dial in a <strong>specific</strong> shape</div></div>
-            <div class="range-block block">Discover <div>Create <strong>randomized</strong> shapes</div></div>
-        </div>
-
-        <div class="row">
-            <a href="javascript:void(0)" class="help-link">What is this?</a>
-        </div>
-        
-        <div class="row">
-            <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-link" target="_blank" alt="Link to Github repo" title="See the source code on Github"><i class="fab fa-github"></i></a>
         </div>
     </div>
 
     <!-- PaperJS canvas -->
     <canvas id="superformula-canvas" data-paper-resize="true"></canvas>
-    
+
     <!-- Third-party packages -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script>
@@ -102,6 +114,6 @@
 
     <!-- Custom packages -->
     <script type="text/javascript" src="dist/superformulasvg.min.js"></script>
-    
+
 </body>
 </html>

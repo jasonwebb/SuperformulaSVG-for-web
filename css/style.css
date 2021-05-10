@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,8 +12,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -23,7 +23,7 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
@@ -82,7 +82,7 @@ body {
             display: block;
             padding: 10px 20px;
             background-color: rgba(0,0,0,.8);
-        
+
             font-size: 14px;
             font-weight: bold;
             border-radius: 3px;
@@ -101,17 +101,22 @@ body {
 
     .logo .icon-link {
         display: inline-block;
+        margin-top: -5px;
         margin-left: 5px;
+        padding: 5px;
+        border: 0;
+        cursor: pointer;
+        background: transparent;
 
         font-size: 22px;
-        color: rgba(0,0,0,.2);
+        color: rgba(0,0,0,.6);
         vertical-align: text-top;
 
         transition: all .3s ease;
     }
 
         .logo .icon-link:hover {
-            color: rgba(0,0,0,.7);
+            color: rgba(0,100,205,1);
         }
 
         .logo .icon-link.hide {
@@ -119,11 +124,11 @@ body {
         }
 
         .logo .icon-link.inverted {
-            color: rgba(255,255,255,.3);
+            color: rgba(255,255,255,.6);
         }
 
             .logo .icon-link.inverted:hover {
-                color: rgba(255,255,255,.8);
+                color: rgba(255,255,255,1);
             }
 
 
@@ -139,21 +144,24 @@ body {
 
     font-size: 54px;
     font-weight: normal;
-    color: rgba(0,0,0,.1);
+    color: rgba(0,0,0,.6);
+    border: 0;
+    cursor: pointer;
+    background: transparent;
 
     transition: all .5s ease;
 }
 
     .back-link:hover {
-        color: rgba(0,0,0,.7);
+        color: rgba(0,100,205,1);
     }
 
     .back-link.inverted {
-        color: rgba(255,255,255,.2);
+        color: rgba(255,255,255,.6);
     }
 
         .back-link.inverted:hover {
-            color: rgba(255,255,255,.8);
+            color: rgba(0,100,205,1);
         }
 
 
@@ -193,16 +201,19 @@ canvas[data-paper-resize] {
 
 .container .block {
     padding: 40px;
-    width: 200px;
+    width: 300px;
+    border: 0;
+    background: transparent;
+    flex: 0 0 auto;
 
     cursor: pointer;
 
     font-size: 42px;
     font-weight: 100;
     text-align: center;
-    color: rgba(0,0,0,.2);
-    
-    transition: all .3s ease-in-out;
+    color: rgba(0,0,0,.5);
+
+    transition: all .2s ease-in-out;
 }
 
     .container .block:first-of-type {
@@ -210,7 +221,7 @@ canvas[data-paper-resize] {
     }
 
     .container .block:hover {
-        color: rgba(0,0,0,.5);
+        color: rgba(0,100,205,1);
     }
 
     .container .block div {
@@ -221,31 +232,36 @@ canvas[data-paper-resize] {
     }
 
 .container .help-link {
-    color: rgba(0,0,0,.2);
+    color: rgba(0,0,0,.7);
     cursor: pointer;
     transition: all .2s ease;
     margin-top: 50px;
     text-decoration: none;
+    border: 0;
+    font-size: 18px;
+    background: transparent;
+    padding: 10px 20px;
 }
 
     .container .help-link:hover {
         text-decoration: underline;
-        color: rgba(0,0,0,.6);
+        color: rgba(0,100,205,1);
     }
 
 .container .github-link {
-    padding-top: 30px;
+    margin-top: 30px;
+    padding: 10px;
     font-size: 30px;
-    color: rgba(0,0,0,.2);
+    color: rgba(0,0,0,.7);
     transition: all .2s ease;
 }
 
     .container .github-link:hover {
-        color: rgba(0,0,0,.7);
+        color: rgba(0,100,205,1);
     }
 
 
-/* 
+/*
 * Utility classes
 */
 .hide {
@@ -272,6 +288,11 @@ canvas[data-paper-resize] {
 
     background-color: rgba(0,0,0,.4);
 }
+
+    .modal:focus .modal-content {
+        outline: 3px solid white;
+        outline-offset: 5px;
+    }
 
     .modal .modal-content {
         background-color: rgba(0,0,0,1);
@@ -309,7 +330,6 @@ canvas[data-paper-resize] {
             border-top: 1px solid rgba(255,255,255,.3);
             width: 40%;
             float: left;
-            font-size: 14px;
         }
 
             .modal .modal-content h2 {
@@ -343,19 +363,17 @@ canvas[data-paper-resize] {
             padding-top: 20px;
 
             text-align: center;
-            font-style: italic;
-            font-size: 14px;
             line-height: 26px;
-            color: rgba(255,255,255,.5);
-            
+            color: rgba(255,255,255,.7);
+
             border-top: 1px solid rgba(255,255,255,.3);
         }
 
             .modal .modal-content .credits a {
-                color: rgba(255,255,255,.5);
+                color: rgba(255,255,255,.8);
                 transition: all .3s ease;
             }
 
                 .modal .modal-content .credits a:hover {
-                    color: rgba(255,255,255,.8);
+                    color: rgba(255,255,255,1);
                 }
